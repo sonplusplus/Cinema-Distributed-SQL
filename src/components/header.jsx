@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Search } from 'lucide-react'
+import { Search, MapPin } from 'lucide-react'
 import { Button } from "./ui/button"
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [isLocating, setIsLocating] = useState(false)
   const navigate = useNavigate()
 
   const handleSearch = (e) => {
@@ -15,6 +16,44 @@ export default function Header() {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`)
     }
   }
+
+  const handleFindNearbyTheaters = () => {
+    if (!navigator.geolocation) {
+      alert("Trình duyệt của bạn không hỗ trợ định vị.");
+      return;
+    }
+
+    // Hiển thị thông báo đang tìm kiếm
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        // Chuyển hướng đến trang theaters với tham số vị trí
+        navigate(`/theaters?lat=${latitude}&lng=${longitude}`);
+        setIsLocating(false);
+      },
+      (error) => {
+        setIsLocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Người dùng từ chối truy cập vị trí.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Thông tin vị trí không khả dụng.");
+            break;
+          case error.TIMEOUT:
+            alert("Yêu cầu vị trí đã hết thời gian chờ.");
+            break;
+          default:
+            alert("Đã xảy ra lỗi không xác định khi định vị.");
+            break;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+  };
 
   return (
     <header className="w-full">
@@ -45,6 +84,14 @@ export default function Header() {
               <Link to="/theaters" className="flex items-center gap-1 text-sm hover:text-purple-400">
                 <span>Chọn rạp</span>
               </Link>
+              <button
+                onClick={handleFindNearbyTheaters}
+                className="flex items-center gap-1 text-sm hover:text-purple-400 ml-4"
+                disabled={isLocating}
+              >
+                <MapPin size={16} />
+                <span>{isLocating ? "Đang định vị..." : "Rạp gần đây"}</span>
+              </button>
               <Link to="/showtimes" className="flex items-center gap-1 text-sm hover:text-purple-400">
                 <span>Lịch chiếu</span>
               </Link>
@@ -89,6 +136,14 @@ export default function Header() {
             <Link to="/theaters" className="px-4 py-2 text-sm hover:text-purple-400">
               Chọn rạp
             </Link>
+            <button
+              onClick={handleFindNearbyTheaters}
+              className="px-4 py-2 text-sm hover:text-purple-400 flex items-center gap-1 md:hidden"
+              disabled={isLocating}
+            >
+              <MapPin size={14} />
+              <span>{isLocating ? "Đang định vị..." : "Rạp gần đây"}</span>
+            </button>
             <Link to="/showtimes" className="px-4 py-2 text-sm hover:text-purple-400">
               Lịch chiếu
             </Link>

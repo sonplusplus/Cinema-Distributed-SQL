@@ -396,3 +396,74 @@ export async function processPayment(bookingId, paymentMethod, selectedSeats) {
     }, 1000)
   })
 }
+
+// Chức năng tìm rạp chiếu gần đây
+export async function fetchNearbyTheaters(latitude, longitude, distance = 5.0) {
+  // Trong môi trường thực tế, đây sẽ là API call
+  // Trong môi trường mock, ta sẽ tính toán khoảng cách cho dữ liệu mẫu
+  
+  // Giả lập API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Lấy tất cả rạp
+      const allTheaters = [...mockTheaters];
+      
+      // Tính khoảng cách và thêm vào mỗi rạp
+      const theatersWithDistance = allTheaters.map(theater => {
+        // Giả định tọa độ cho mỗi rạp (trong thực tế sẽ lấy từ DB)
+        const theaterCoords = getTheaterCoordinates(theater.id);
+        
+        // Tính khoảng cách giữa vị trí người dùng và rạp
+        const distance = calculateDistance(
+          latitude, 
+          longitude,
+          theaterCoords.lat,
+          theaterCoords.lng
+        );
+        
+        return {
+          ...theater,
+          distance: distance,
+          location: theaterCoords
+        };
+      });
+      
+      // Lọc theo khoảng cách và sắp xếp theo rạp gần nhất
+      const nearbyTheaters = theatersWithDistance
+        .filter(theater => theater.distance <= distance)
+        .sort((a, b) => a.distance - b.distance);
+      
+      resolve(nearbyTheaters);
+    }, 500);
+  });
+}
+
+// Hàm giả định tọa độ cho mỗi rạp (chỉ cho môi trường mock)
+function getTheaterCoordinates(theaterId) {
+  // Dữ liệu mẫu - trong thực tế, mỗi rạp sẽ có tọa độ lưu trong DB
+  const coordinates = {
+    theater1: { lat: 10.772, lng: 106.698 }, // Quang Trung, Gò Vấp
+    theater2: { lat: 10.773, lng: 106.701 }, // Hai Bà Trưng
+    theater3: { lat: 10.743, lng: 106.628 }  // Satra Q6
+  };
+  
+  return coordinates[theaterId] || { lat: 10.762, lng: 106.660 }; // Mặc định
+}
+
+// Hàm tính khoảng cách (công thức Haversine)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Bán kính trái đất (km)
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c; // Khoảng cách (km)
+  return distance;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180);
+}

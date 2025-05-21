@@ -6,6 +6,7 @@ import MovieDetail from "./pages/movie-detail"
 import BookingPage from "./pages/booking"
 import NotFoundPage from "./pages/not-found"
 import PaymentSuccess from "./pages/payment-success"
+import TheatersPage from "./pages/theaters"
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/movies/:id" element={<MovieDetail />} />
             <Route path="/booking" element={<BookingPage />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/theaters" element={<TheatersPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
