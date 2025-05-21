@@ -232,7 +232,7 @@ export default function MovieDetail() {
                         <SelectValue placeholder="Tất cả rạp" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">Tất cả rạp</SelectItem>
+                        <SelectItem value="">Tất cả rạp</SelectItem>
                         {theaters.map((theater) => (
                           <SelectItem key={theater.id} value={theater.id}>
                             {theater.name}
@@ -256,12 +256,13 @@ export default function MovieDetail() {
                             <h3 className="text-xl font-bold mb-4">{theater.name}</h3>
                             <p className="text-gray-400 text-sm mb-4">{theater.address}</p>
 
+                            {/* Hiển thị thời gian chiếu luôn không cần hover */}
                             <div className="flex flex-wrap gap-3">
                               {theaterShowtimes.map((showtime) => (
                                 <Button
                                   key={showtime.id}
                                   variant="outline"
-                                  className="hover:bg-yellow-500 hover:text-black"
+                                  className="border border-gray-600 hover:bg-yellow-500 hover:text-black bg-transparent text-white"
                                   onClick={() => handleBookTicket(showtime.id)}
                                 >
                                   {showtime.startTime}
